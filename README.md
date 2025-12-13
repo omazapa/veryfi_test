@@ -49,6 +49,17 @@ Then run the CLI against that manifest:
 veryfi-ocr documents.json
 ```
 
+Example output when using `examples/documents.json`:
+
+```text
+(home) ozapatam@tuxito:~/Projects/Veryfi/veryfi_test$ veryfi-ocr examples/documents.json
+Processed data/synth-switch_v5-14.pdf (document id: 385142953) -> outputs-ocr/synth-switch_v5-14.json
+Processed data/synth-switch_v5-4.pdf (document id: 385142969) -> outputs-ocr/synth-switch_v5-4.json
+Processed data/synth-switch_v5-68.pdf (document id: 385142983) -> outputs-ocr/synth-switch_v5-68.json
+Processed data/synth-switch_v5-7.pdf (document id: 385142997) -> outputs-ocr/synth-switch_v5-7.json
+Processed data/synth-switch_v5-79.pdf (document id: 385143009) -> outputs-ocr/synth-switch_v5-79.json
+```
+
 Options:
 
 - `--output-ocr-dir processed/` stores JSON responses under a custom directory (default: `./outputs-ocr`).
