@@ -1,0 +1,26 @@
+[project]
+name = "veryfi-test"
+version = "0.1.0"
+description = "Utilities for Veryfi Data Annotations Engineer test"
+authors = [{name = "Omar Zapata"}]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "veryfi==5.0.0"
+]
+
+[project.scripts]
+veryfi-process = "veryfi_test.cli:main"
+
+[project.urls]
+Homepage = "https://www.veryfi.com/"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "veryfi_test"}
+
+[tool.setuptools.packages.find]
+where = ["veryfi_test"]
