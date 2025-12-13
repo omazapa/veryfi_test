@@ -14,24 +14,60 @@ from .config import VeryfiCredentials, load_credentials
 
 @dataclass(frozen=True)
 class DocumentJob:
+    """Represents a single entry in the manifest file.
+
+    Attributes
+    ----------
+    path : pathlib.Path
+        Filesystem path to the document that should be processed.
+    categories : list of str or None, optional
+        Category labels associated with the document, if any.
+    """
+
     path: Path
     categories: List[str] | None = None
 
 
 def _build_client(creds: VeryfiCredentials) -> Client:
-    """Instantiate the official Veryfi client honoring custom API URLs."""
+    """Instantiate the official Veryfi client honoring custom API URLs.
 
-    base_url = creds.api_url.rstrip("/") + "/"
+    Parameters
+    ----------
+    creds : VeryfiCredentials
+        Credential bundle with the API endpoint and keys.
+
+    Returns
+    -------
+    veryfi.Client
+        Client ready to send OCR requests.
+    """
+
+    base_url = creds.api_url.rstrip("/")
+    if not base_url.endswith("/api"):
+        base_url = f"{base_url}/api"
+    base_url = f"{base_url.rstrip('/')}/"
     return Client(
         creds.client_id,
         creds.client_secret,
         creds.username,
         creds.api_key,
-        url=base_url,
+        base_url=base_url,
     )
 
 
-def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Return parsed CLI arguments.
+
+    Parameters
+    ----------
+    argv : Sequence[str], optional
+        Custom argument vector; defaults to ``sys.argv`` when ``None``.
+
+    Returns
+    -------
+    argparse.Namespace
+        Namespaced values for manifest path, output directory, and env file.
+    """
     parser = argparse.ArgumentParser(
         description="Upload documents defined in a JSON manifest to the Veryfi OCR API."
     )
@@ -41,15 +77,16 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         help="Path to a JSON file that lists each document and its categories.",
     )
     parser.add_argument(
-        "--output-dir",
+        "--output-ocr-dir",
+        dest="output_dir",
         type=Path,
-        default=Path("outputs"),
-        help="Directory where JSON responses will be stored (default: ./outputs).",
+        default=Path("outputs-ocr"),
+        help="Directory where JSON responses will be stored (default: ./outputs-ocr).",
     )
     parser.add_argument(
         "--env-file",
         type=Path,
-        default=None,
+        default=Path(".env"),
         help="Optional path to a dotenv file with Veryfi credentials (defaults to .env).",
     )
     return parser.parse_args(argv)
@@ -58,6 +95,26 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
 def _normalize_categories(
     value: object, *, job_index: int
 ) -> List[str] | None:
+    """Normalize raw category values to a list of strings.
+
+    Parameters
+    ----------
+    value : object
+        Raw value from the manifest (string, iterable, or ``None``).
+    job_index : int
+        Position of the manifest entry; used to render helpful errors.
+
+    Returns
+    -------
+    list of str or None
+        Cleaned category labels ready to send to Veryfi.
+
+    Raises
+    ------
+    ValueError
+        If the provided value cannot be interpreted as categories.
+    """
+
     if value is None:
         return None
     if isinstance(value, str):
@@ -75,6 +132,26 @@ def _normalize_categories(
 
 
 def _load_manifest(manifest_path: Path) -> List[DocumentJob]:
+    """Parse and validate the manifest file.
+
+    Parameters
+    ----------
+    manifest_path : pathlib.Path
+        JSON file describing the documents to process.
+
+    Returns
+    -------
+    list of DocumentJob
+        Sanitized jobs including paths and optional categories.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the manifest does not exist.
+    ValueError
+        If the manifest structure is invalid or empty.
+    """
+
     if not manifest_path.is_file():
         raise FileNotFoundError(manifest_path)
 
@@ -118,6 +195,23 @@ def _load_manifest(manifest_path: Path) -> List[DocumentJob]:
 def _save_response(
     output_dir: Path, source_path: Path, payload: dict
 ) -> Path:
+    """Write the API response to disk next to the source file name.
+
+    Parameters
+    ----------
+    output_dir : pathlib.Path
+        Directory where responses should be stored.
+    source_path : pathlib.Path
+        Original document path used to derive the output file name.
+    payload : dict
+        JSON-serializable content to persist.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the file that was written.
+    """
+
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{source_path.stem}.json"
     output_path.write_text(json.dumps(payload, indent=2))
@@ -125,6 +219,19 @@ def _save_response(
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """Program entry point.
+
+    Parameters
+    ----------
+    argv : Sequence[str], optional
+        Optional argument list useful for testing.
+
+    Returns
+    -------
+    int
+        Zero when all documents succeed, otherwise non-zero.
+    """
+
     args = _parse_args(argv)
     try:
         creds = load_credentials(env_file=args.env_file)

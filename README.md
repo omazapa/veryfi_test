@@ -46,12 +46,12 @@ After your credentials are set, describe the documents in a JSON manifest:
 Then run the CLI against that manifest:
 
 ```bash
-veryfi-process documents.json
+veryfi-ocr documents.json
 ```
 
 Options:
 
-- `--output-dir processed/` stores JSON responses under a custom directory (default: `./outputs`).
+- `--output-ocr-dir processed/` stores JSON responses under a custom directory (default: `./outputs-ocr`).
 - `--env-file /custom/path/.env` points to another dotenv file if needed.
 
 Each manifest entry must include a `path` and can optionally define `categories`/`topics` (string or list). You may also wrap the list in an object with a `documents` key. Every processed document generates a JSON file whose name matches the original input (e.g., `invoice.pdf` → `invoice.json`) and stores the Veryfi response payload. You can also invoke the CLI without installing by running `python -m veryfi_test.cli documents.json`.

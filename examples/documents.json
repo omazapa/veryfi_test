@@ -1,0 +1,32 @@
+[
+  {
+    "path": "data/synth-switch_v5-14.pdf",
+    "categories": [
+      "Transportation", "Utilities", "Installation Services"
+    ]
+  },
+  {
+    "path": "data/synth-switch_v5-4.pdf",
+    "categories": [
+      "Transportation", "Utilities"
+    ]
+  },
+  {
+    "path": "data/synth-switch_v5-68.pdf",
+    "categories": [
+      "Transportation", "Utilities", "Installation Services"
+    ]
+  },
+  {
+    "path": "data/synth-switch_v5-7.pdf",
+    "categories": [
+      "Transportation", "Utilities"
+    ]
+  },
+  {
+    "path": "data/synth-switch_v5-79.pdf",
+    "categories": [
+      "Transportation", "Utilities", "Installation Services"
+    ]
+  }
+]

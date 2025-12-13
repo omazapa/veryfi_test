@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-veryfi-process = "veryfi_test.cli:main"
+veryfi-ocr = "veryfi_test.cli:main"
 
 [project.urls]
 Homepage = "https://www.veryfi.com/"
@@ -20,7 +20,4 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-package-dir = {"" = "veryfi_test"}
-
-[tool.setuptools.packages.find]
-where = ["veryfi_test"]
+packages = ["veryfi_test"]

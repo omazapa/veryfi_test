@@ -16,7 +16,21 @@ ENV_FILE = Path(".env")
 
 @dataclass(frozen=True)
 class VeryfiCredentials:
-    """Container with the values required to authenticate against Veryfi."""
+    """Container with the values required to authenticate against Veryfi.
+
+    Attributes
+    ----------
+    api_url : str
+        Base Veryfi API endpoint.
+    client_id : str
+        Client identifier provided by Veryfi.
+    client_secret : str
+        Client secret associated with the identifier.
+    username : str
+        Veryfi username or email.
+    api_key : str
+        API key used for request signing.
+    """
 
     api_url: str
     client_id: str
@@ -26,7 +40,18 @@ class VeryfiCredentials:
 
 
 def _read_env_file(path: Path) -> Dict[str, str]:
-    """Parse a dotenv-like file into a mapping without mutating ``os.environ``."""
+    """Parse a dotenv-like file into a mapping without mutating ``os.environ``.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        Location of the dotenv file to parse.
+
+    Returns
+    -------
+    dict
+        Keys and values extracted from the file (sans comments and quotes).
+    """
 
     values: Dict[str, str] = {}
     if not path.exists():
@@ -49,8 +74,20 @@ def _read_env_file(path: Path) -> Dict[str, str]:
 def load_credentials(env_file: Optional[Path] = ENV_FILE) -> VeryfiCredentials:
     """Return Veryfi credentials combining env vars and an optional env file.
 
-    Environment variables always win over the values from the ``env_file``.
-    ``env_file`` should stay outside of Git so secrets never leave your machine.
+    Parameters
+    ----------
+    env_file : pathlib.Path or None, optional
+        Optional dotenv location to consult when environment variables are missing.
+
+    Returns
+    -------
+    VeryfiCredentials
+        Sanitized credentials ready for API calls.
+
+    Raises
+    ------
+    RuntimeError
+        If any required credential cannot be resolved.
     """
 
     file_values: Mapping[str, str] = {}
