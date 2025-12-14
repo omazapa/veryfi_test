@@ -79,31 +79,16 @@ Every Veryfi response contains the OCR text under `veryfi_response.ocr_text`. Th
 Run the extraction CLI against a directory full of Veryfi JSON files:
 
 ```bash
-verify_extract outputs-ocr
+veryfi-extract outputs-ocr/
 ```
 
 This command scans every `*.json` file under `outputs-ocr`, extracts the supported
 fields, and writes one output file per invoice inside `outputs-extracted/`
-(`extracted_<original-name>.json`). A summary resembling the following is printed:
-
-```json
-{
-  "processed": 6,
-  "saved": [
-    "outputs-ocr/synth-switch_v5-14.json",
-    "outputs-ocr/synth-switch_v5-4.json",
-    "outputs-ocr/synth-switch_v5-68.json",
-    "outputs-ocr/synth-switch_v5-79.json",
-    "outputs-ocr/synth-switch_v5-7.json"
-  ],
-  "skipped": {
-    "outputs-ocr/random.json": "layout mismatch"
-  },
-  "output_dir": "outputs-extracted"
-}
-```
-
-Each saved file contains the `InvoiceFields` payload plus the `source` path, ready for downstream tooling. The payload now includes a `line_items` array where each row captures (assuming SKUs are represented by the last alphanumeric token of exactly eight characters that appears inside parentheses):
+(`extracted_<original-name>.json`). Each saved file contains the `InvoiceFields`
+payload plus the `source` path, ready for downstream tooling. The payload now
+includes a `line_items` array where each row captures (assuming SKUs are
+represented by the last alphanumeric token of exactly eight characters that
+appears inside parentheses):
 
 - `sku`: identifier derived from that eight-character token (uppercased); `null` if absent
 - `description`: full text, including any wrapped lines
@@ -112,7 +97,27 @@ Each saved file contains the `InvoiceFields` payload plus the `source` path, rea
 - `total`: Amount column
 - `tax_rate`: null (not derivable from the invoice)
 
-Any JSON that does not match the Switch layout (for example `examples/non_switch.json`) is listed under `skipped` with the reason it was ignored.
+Any JSON that does not match the Switch layout (for example `examples/non_switch.json`) is listed under `skipped` with the reason it was ignored. Running `veryfi-extract outputs-ocr/` against a mix of approved and unapproved layouts prints a summary like:
+
+```json
+{
+  "processed": 7,
+  "saved": [
+    "outputs-ocr/synth-switch_v5-14.json",
+    "outputs-ocr/synth-switch_v5-4.json",
+    "outputs-ocr/synth-switch_v5-68.json",
+    "outputs-ocr/synth-switch_v5-7.json",
+    "outputs-ocr/synth-switch_v5-79.json"
+  ],
+  "skipped": {
+    "outputs-ocr/non-switch-invoice.json": "layout mismatch",
+    "outputs-ocr/non-switch-invoice2.json": "layout mismatch"
+  },
+  "output_dir": "outputs-extracted"
+}
+```
+
+The extractor labels each non-Switch document with `layout mismatch`, so it never produces structured data for layouts we have not vetted.
 
 ### Extraction Assumptions
 
