@@ -188,7 +188,7 @@ def _parse_line_items(text: str) -> List[InvoiceLineItem]:
                 quantity=_standardize_number(match.group("qty")),
                 price=_standardize_number(match.group("price")),
                 total=_standardize_number(match.group("total")),
-                tax_rate=_standardize_number(match.group("price")),
+                tax_rate=None,
             )
             items.append(last_item)
             allow_continuation = True

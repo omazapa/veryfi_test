@@ -110,11 +110,14 @@ Each saved file contains the `InvoiceFields` payload plus the `source` path, rea
 - `quantity`: Quantity column straight from the invoice
 - `price`: Rate column
 - `total`: Amount column
-- `tax_rate`: Copy of the Rate column (per test requirements)
+- `tax_rate`: null (not derivable from the invoice)
 
 Any JSON that does not match the Switch layout (for example `examples/non_switch.json`) is listed under `skipped` with the reason it was ignored.
 
 ### Extraction Assumptions
 
 1. **SKU Identification** – When parsing line items we assume that the SKU is encoded as the last alphanumeric token with exactly eight characters enclosed in parentheses. The extractor uppercases that token and assigns it to `sku`. Items that lack such a token keep `sku: null`.
-2. **Tax Rate** – The invoices do not expose a separate tax-rate column, so the `tax_rate` field simply mirrors the `Rate` column from the OCR table (the same value stored under `price`).
+2. **Quantity** – The quantity we store is exactly the value shown under the `Quantity` column (e.g., units, hours, bandwidth). We do not attempt to normalize units or convert them.
+3. **Price** – `price` comes directly from the `Rate` column, representing the unit price for the line item.
+4. **Total** – `total` is copied from the `Amount` column (the total per line, already calculated by the invoice and inclusive of any adjustments or discounts).
+5. **Tax Rate** – The invoices do not expose a dedicated tax-rate column and the OCR text does not provide enough information to derive one. Consequently, `tax_rate` is assumed to be unavailable and is always set to `null`.

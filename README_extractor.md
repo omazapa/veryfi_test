@@ -17,14 +17,28 @@ while still guaranteeing that only the intended layout is parsed.
    verify_extract outputs-ocr
    ```
 
-3. The CLI scans every `*.json` file inside the provided directory, writes one
-   extracted document per match under `outputs-extracted/` (file names prefixed
-   with `extracted_`), and prints a summary JSON that enumerates the saved files
-   plus any skipped inputs.
+3. The CLI scans every `*.json` file inside the provided directory, writes one extracted document per match under `outputs-extracted/` (file names prefixed with `extracted_`), and prints a summary JSON that enumerates the saved files plus any skipped inputs. Each saved file includes the structured metadata and the parsed line items described below.
 
 `examples/non_switch.json` demonstrates the skip path—its OCR snippet lacks the
 Switch banner and is deliberately ignored. This satisfies the “exclude other
 documents” constraint while still reporting which sources were rejected.
+
+## How the Extractor Works (Detailed)
+
+The extractor is intentionally deterministic so that every decision can be traced back to a specific heuristic. When you run `verify_extract outputs-ocr` the following steps occur for **each** JSON file in that directory:
+
+1. **Load Veryfi response** – We open the JSON, grab the `veryfi_response` object, and read `ocr_text`. If the top-level JSON is not an object, the file is skipped with the reason `unsupported JSON structure`. Missing or malformed files are reported as `missing file` or `invalid JSON`.
+2. **Vendor identification** – `ocr_text` is first normalized (CRs removed) and sent through `_VENDOR_PATTERN`. If the text does not begin with the Switch banner (`switch … / PO Box …`), the file is skipped (`layout mismatch`). This ensures we never parse other vendors by mistake.
+3. **Invoice metadata** – `_INVOICE_PATTERN` is applied to capture `invoice_date` and `invoice_number`. The pattern matches the “Invoice Date / Due Date / Invoice No.” header followed by one row of values. Without this header the extractor refuses to continue because the document structure is not the expected Switch format.
+4. **Bill-to block** – `_BILL_TO_PATTERN` slices everything between the metadata row and the next `Account No.` heading. The first non-empty line becomes `bill_to_name` and the remainder is concatenated with commas to form `bill_to_address`. This logic keeps multi-line addresses intact.
+5. **Line-item parsing** – Once the boilerplate sections are validated, the parser streams through every line between the header row (`Description … Quantity … Rate … Amount`) and the `Total USD` footer. Each table row is decoded using `_LINE_PATTERN`, which expects tab- or space-separated columns. Wrapped descriptions are handled by buffering the text until the next numeric row is seen.
+6. **Structured payload construction** – For each decoded row we create an `InvoiceLineItem` object:
+   - `sku` is derived by scanning the description for alphanumeric tokens of exactly eight characters inside parentheses (e.g., `(YSPG4VFH)`). The last such token is uppercased and used as a SKU. If no match exists (for discount lines, for example), `sku` is `null`.
+   - `description` holds the full text (including wrapped portions).
+   - `quantity`, `price`, and `total` come straight from the table, with commas removed to simplify downstream parsing.
+   - `tax_rate` is always `null` because Switch invoices do not expose a separate tax column and it cannot be derived reliably from the OCR text.
+
+Because the extractor always runs through these checks in order, any failure (missing banner, missing metadata, empty bill-to block, etc.) results in that file being listed under `skipped` with a precise reason. Valid Switch invoices end up under `outputs-extracted/extracted_<name>.json` and contain the vendor metadata, bill-to info, and the enriched `line_items` array.
 
 ## Regular Expressions Explained
 
@@ -111,8 +125,8 @@ Line items appear under `line_items`:
   "quantity": "579.10",
   "price": "1750.30",
   "total": "1013598.73",
-"tax_rate": "1750.30"
+"tax_rate": null
 }
 ```
 
-The parser walks every row between the `Description … Quantity … Amount` header and the `Total USD` footer, keeping wrapped descriptions intact and normalizing the numeric columns (commas removed). The SKU is computed as the last alphanumeric token with **exactly eight** characters enclosed in parentheses (converted to uppercase); if no such token exists for a line item, `sku` is set to `null`. The `tax_rate` field mirrors the Rate column, matching the specification for the test.
+The parser walks every row between the `Description … Quantity … Amount` header and the `Total USD` footer, keeping wrapped descriptions intact and normalizing the numeric columns (commas removed). The SKU is computed as the last alphanumeric token with **exactly eight** characters enclosed in parentheses (converted to uppercase); if no such token exists for a line item, `sku` is set to `null`. Because the invoices provide no tax-rate column, the extractor leaves `tax_rate` set to `null`.
