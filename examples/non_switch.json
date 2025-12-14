@@ -1,5 +1,10 @@
-{
-  "veryfi_response": {
-    "ocr_text": "Invoice\nAcme Corp\n123 Main St\nInvoice Date 01/01/23 Invoice No. 12345"
+[
+  {
+    "path": "data/non-switch-invoice.pdf",
+    "categories": ["Utilities"]
+  },
+  {
+    "path": "data/non-switch-invoice2.pdf",
+    "categories": ["Utilities"]
   }
-}
+]
