@@ -103,6 +103,18 @@ fields, and writes one output file per invoice inside `outputs-extracted/`
 }
 ```
 
-Each saved file contains the `InvoiceFields` payload plus the `source` path, ready
-for downstream tooling. Any JSON that does not match the Switch layout (for example
-`examples/non_switch.json`) is listed under `skipped` with the reason it was ignored.
+Each saved file contains the `InvoiceFields` payload plus the `source` path, ready for downstream tooling. The payload now includes a `line_items` array where each row captures (assuming SKUs are represented by the last alphanumeric token of exactly eight characters that appears inside parentheses):
+
+- `sku`: identifier derived from that eight-character token (uppercased); `null` if absent
+- `description`: full text, including any wrapped lines
+- `quantity`: Quantity column straight from the invoice
+- `price`: Rate column
+- `total`: Amount column
+- `tax_rate`: Copy of the Rate column (per test requirements)
+
+Any JSON that does not match the Switch layout (for example `examples/non_switch.json`) is listed under `skipped` with the reason it was ignored.
+
+### Extraction Assumptions
+
+1. **SKU Identification** – When parsing line items we assume that the SKU is encoded as the last alphanumeric token with exactly eight characters enclosed in parentheses. The extractor uppercases that token and assigns it to `sku`. Items that lack such a token keep `sku: null`.
+2. **Tax Rate** – The invoices do not expose a separate tax-rate column, so the `tax_rate` field simply mirrors the `Rate` column from the OCR table (the same value stored under `price`).

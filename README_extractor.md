@@ -102,7 +102,17 @@ as `outputs-extracted/extracted_<original>.json` with the following structure:
 }
 ```
 
-This structure mirrors the five fields requested in the assignment plus the
-vendor address (helpful when validating annotations). Downstream consumers can
-feed this JSON to labeling tools or analytics pipelines without touching the
-raw OCR text again.
+Line items appear under `line_items`:
+
+```json
+{
+"sku": "YSPG4VFH",
+  "description": "Installation of Cross Connect | 395 Gbps Fiber to AE9qC3",
+  "quantity": "579.10",
+  "price": "1750.30",
+  "total": "1013598.73",
+"tax_rate": "1750.30"
+}
+```
+
+The parser walks every row between the `Description … Quantity … Amount` header and the `Total USD` footer, keeping wrapped descriptions intact and normalizing the numeric columns (commas removed). The SKU is computed as the last alphanumeric token with **exactly eight** characters enclosed in parentheses (converted to uppercase); if no such token exists for a line item, `sku` is set to `null`. The `tax_rate` field mirrors the Rate column, matching the specification for the test.

@@ -15,11 +15,7 @@ DEFAULT_OUTPUT_DIR = Path("outputs-extracted")
 def _iter_json_files(input_dir: Path) -> List[Path]:
     if not input_dir.is_dir():
         raise NotADirectoryError(input_dir)
-    return sorted(
-        path
-        for path in input_dir.iterdir()
-        if path.is_file() and path.suffix.lower() == ".json"
-    )
+    return sorted(path for path in input_dir.iterdir() if path.is_file() and path.suffix.lower() == ".json")
 
 
 def _save_payload(output_dir: Path, source: Path, payload: dict) -> Path:
@@ -52,9 +48,7 @@ def _process_file(source: Path, output_dir: Path) -> tuple[bool, str]:
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Extract Switch invoice fields from all JSON files in a directory."
-    )
+    parser = argparse.ArgumentParser(description="Extract Switch invoice fields from all JSON files in a directory.")
     parser.add_argument(
         "input_dir",
         type=Path,
@@ -103,3 +97,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 __all__ = ["main", "run_extraction"]
+
+
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(main())

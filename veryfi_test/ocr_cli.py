@@ -68,9 +68,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     argparse.Namespace
         Namespaced values for manifest path, output directory, and env file.
     """
-    parser = argparse.ArgumentParser(
-        description="Upload documents defined in a JSON manifest to the Veryfi OCR API."
-    )
+    parser = argparse.ArgumentParser(description="Upload documents defined in a JSON manifest to the Veryfi OCR API.")
     parser.add_argument(
         "manifest",
         type=Path,
@@ -92,9 +90,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _normalize_categories(
-    value: object, *, job_index: int
-) -> List[str] | None:
+def _normalize_categories(value: object, *, job_index: int) -> List[str] | None:
     """Normalize raw category values to a list of strings.
 
     Parameters
@@ -168,21 +164,11 @@ def _load_manifest(manifest_path: Path) -> List[DocumentJob]:
         if not isinstance(item, dict):
             raise ValueError(f"Job #{index}: entries must be objects.")
 
-        file_path = (
-            item.get("path")
-            or item.get("file")
-            or item.get("document")
-            or item.get("archivo")
-        )
+        file_path = item.get("path") or item.get("file") or item.get("document") or item.get("archivo")
         if not file_path:
             raise ValueError(f"Job #{index}: missing 'path' field.")
 
-        raw_categories = (
-            item.get("categories")
-            or item.get("topics")
-            or item.get("temas")
-            or item.get("category")
-        )
+        raw_categories = item.get("categories") or item.get("topics") or item.get("temas") or item.get("category")
         categories = _normalize_categories(raw_categories, job_index=index)
         jobs.append(DocumentJob(Path(str(file_path)), categories))
 
@@ -192,9 +178,7 @@ def _load_manifest(manifest_path: Path) -> List[DocumentJob]:
     return jobs
 
 
-def _save_response(
-    output_dir: Path, source_path: Path, payload: dict
-) -> Path:
+def _save_response(output_dir: Path, source_path: Path, payload: dict) -> Path:
     """Write the API response to disk next to the source file name.
 
     Parameters
@@ -258,9 +242,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             continue
 
         try:
-            response = client.process_document(
-                str(path), categories=job.categories
-            )
+            response = client.process_document(str(path), categories=job.categories)
         except Exception as exc:  # pragma: no cover - depends on API responses
             print(f"Upload failed for {path}: {exc}", file=sys.stderr)
             exit_code = 1
@@ -278,9 +260,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         saved_path = _save_response(output_dir, path, payload)
 
         if doc_id is not None:
-            print(
-                f"Processed {path} (document id: {doc_id}) -> {saved_path}"
-            )
+            print(f"Processed {path} (document id: {doc_id}) -> {saved_path}")
         else:
             print(f"Processed {path} -> {saved_path}")
 

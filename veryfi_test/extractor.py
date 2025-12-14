@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 import re
 
 
@@ -33,10 +33,43 @@ class InvoiceFields:
     bill_to_address: str
     invoice_number: str
     invoice_date: str
+    line_items: List["InvoiceLineItem"]
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> Dict[str, object]:
         """Return a JSON-friendly representation of the fields."""
 
+        return asdict(self)
+
+
+@dataclass
+class InvoiceLineItem:
+    """Parsed table row inside the invoice body.
+
+    Attributes
+    ----------
+    sku : str or None
+        Short identifier derived from the description (e.g., "Transport").
+    description : str
+        Full description displayed inside the row.
+    quantity : str
+        Quantity column (kept as text to preserve formatting).
+    price : str
+        Unit price/rate column.
+    total : str
+        Amount column.
+    tax_rate : str or None
+        Placeholder for tax rate. Switch invoices do not list this value
+        explicitly, so it remains ``None``.
+    """
+
+    sku: Optional[str]
+    description: str
+    quantity: str
+    price: str
+    total: str
+    tax_rate: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Optional[str]]:
         return asdict(self)
 
 
@@ -56,6 +89,16 @@ _BILL_TO_PATTERN = re.compile(
     r"\s*\d{2}/\d{2}/\d{2}\s+\d{2}/\d{2}/\d{2}\s+\d+\s*\n+"
     r"(?P<bill_block>.+?)\n+Account No\.",
     flags=re.IGNORECASE | re.DOTALL,
+)
+
+_LINE_PATTERN = re.compile(
+    r"^(?P<desc>.+?)"
+    r"(?:\t+|\s{2,})"
+    r"(?P<qty>-?[\d,]+(?:\.\d+)?)"
+    r"(?:\t+|\s{2,})"
+    r"(?P<price>-?[\d,]+(?:\.\d+)?)"
+    r"(?:\t+|\s{2,})"
+    r"(?P<total>-?[\d,]+(?:\.\d+)?)$"
 )
 
 
@@ -87,17 +130,14 @@ def extract_switch_invoice(ocr_text: str) -> Optional[InvoiceFields]:
     if not invoice_match or not bill_match:
         return None
 
-    bill_lines = [
-        line.strip()
-        for line in bill_match.group("bill_block").splitlines()
-        if line.strip()
-    ]
+    bill_lines = [line.strip() for line in bill_match.group("bill_block").splitlines() if line.strip()]
     if not bill_lines:
         return None
 
     vendor_address = f"PO Box {vendor_match.group('po')} {vendor_match.group('city_state').strip()}"
     bill_to_name = bill_lines[0]
     bill_to_address = ", ".join(bill_lines[1:]) if len(bill_lines) > 1 else ""
+    line_items = _parse_line_items(text)
 
     return InvoiceFields(
         vendor_name="Switch",
@@ -106,7 +146,82 @@ def extract_switch_invoice(ocr_text: str) -> Optional[InvoiceFields]:
         bill_to_address=bill_to_address,
         invoice_number=invoice_match.group("invoice_no"),
         invoice_date=invoice_match.group("invoice_date"),
+        line_items=line_items,
     )
 
 
-__all__ = ["InvoiceFields", "extract_switch_invoice"]
+def _parse_line_items(text: str) -> List[InvoiceLineItem]:
+    items: List[InvoiceLineItem] = []
+    capture = False
+    buffer: List[str] = []
+    last_item: Optional[InvoiceLineItem] = None
+    allow_continuation = False
+
+    for raw_line in text.splitlines():
+        line = raw_line.replace("\f", "").strip()
+        if not line:
+            continue
+
+        if "Description" in line and "Quantity" in line and "Amount" in line:
+            capture = True
+            buffer.clear()
+            continue
+
+        if capture and line.startswith("Total USD"):
+            capture = False
+            buffer.clear()
+            continue
+
+        if not capture:
+            continue
+
+        match = _LINE_PATTERN.match(raw_line.rstrip())
+        if match:
+            description_parts = [part.strip() for part in buffer if part.strip()]
+            description_parts.append(match.group("desc").strip())
+            description = " ".join(description_parts)
+            buffer.clear()
+            sku = _derive_sku(description)
+            last_item = InvoiceLineItem(
+                sku=sku,
+                description=description,
+                quantity=_standardize_number(match.group("qty")),
+                price=_standardize_number(match.group("price")),
+                total=_standardize_number(match.group("total")),
+                tax_rate=_standardize_number(match.group("price")),
+            )
+            items.append(last_item)
+            allow_continuation = True
+        else:
+            if allow_continuation and last_item:
+                last_item.description = f"{last_item.description} {line}"
+                refreshed = _derive_sku(last_item.description)
+                if refreshed:
+                    last_item.sku = refreshed
+            else:
+                buffer.append(line)
+                allow_continuation = False
+
+    return items
+
+
+def _derive_sku(description: str) -> Optional[str]:
+    if not description:
+        return None
+
+    matches = re.findall(r"\(([A-Za-z0-9]{8})\)", description)
+    if matches:
+        return matches[-1].strip().upper()
+
+    if "|" in description:
+        prefix = description.split("|", 1)[0].strip()
+        return prefix or None
+
+    return None
+
+
+def _standardize_number(value: str) -> str:
+    return value.replace(",", "").strip()
+
+
+__all__ = ["InvoiceFields", "InvoiceLineItem", "extract_switch_invoice"]
