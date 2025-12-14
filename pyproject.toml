@@ -10,7 +10,8 @@ dependencies = [
 ]
 
 [project.scripts]
-veryfi-ocr = "veryfi_test.cli:main"
+veryfi-ocr = "veryfi_test.ocr_cli:main"
+veryfi-extract = "veryfi_test.extract_cli:main"
 
 [project.urls]
 Homepage = "https://www.veryfi.com/"
