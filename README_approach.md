@@ -38,8 +38,6 @@
   4. Inspect the extracted JSONs (`extracted_*.json`) to ensure metadata and line items are populated.
   5. Generate a pipeline report (`pipeline_report.json`) and print it for debugging.
 - **CI parity** – The integration workflow mirrors these steps, guaranteeing the reported behavior matches what is tested locally.
-- **Manual verification** – Sample manifests (`examples/*.json`) and CLI instructions in the README allow quick smoke tests.
-
 ## How to Extend
 
 - Add new layouts by introducing additional extractor modules and routing logic inside `extract_cli`.
