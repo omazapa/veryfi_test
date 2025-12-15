@@ -17,6 +17,7 @@ class DatasetSpec(TypedDict):
     meta: Dict[str, object]
     is_switch: bool
 
+
 REQUIRED_ENV_VARS = [
     "VERYFI_API_URL",
     "VERYFI_CLIENT_ID",
