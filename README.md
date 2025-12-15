@@ -1,12 +1,68 @@
 # veryfi_test
 
 <p align="center">
+  <a href="https://github.com/omazapa/veryfi_test/actions/workflows/quality.yml">
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/quality.yml/badge.svg" alt="Code Quality badge" />
+  </a>
+  <a href="https://github.com/omazapa/veryfi_test/actions/workflows/integration.yml">
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/integration.yml/badge.svg" alt="Integration Tests badge" />
+  </a>
+  <a href="https://github.com/omazapa/veryfi_test/actions/workflows/python-publish.yml">
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/python-publish.yml/badge.svg" alt="Publish badge" />
+  </a>
+</p>
+
+<p align="center">
   <img src="https://avatars.githubusercontent.com/u/64030334?s=200&v=4" alt="Veryfi Logo" />
 </p>
 
 <p align="center">
   <strong>Veryfi’s Data Annotations Engineer Test</strong>
 </p>
+
+## Contents
+
+- [Overview](#overview)
+- [Processing Pipeline](#processing-pipeline)
+- [Quick Start](#quick-start)
+- [Credentials Setup](#credentials-setup)
+- [CLI Usage](#cli-usage)
+- [Structured Field Extraction](#structured-field-extraction)
+- [Extraction Assumptions](#extraction-assumptions)
+
+## Overview
+
+- **What it does** – Provides two CLIs (`veryfi-ocr` and `veryfi-extract`) that turn Switch-branded invoices into structured JSON. The first uploads PDFs to Veryfi and stores the raw OCR payload; the second parses that payload into canonical invoice fields.
+- **Why it exists** – Automates the Switch use case end to end so annotation engineers can validate layouts, run regression suites, and feed downstream systems without writing bespoke scripts.
+- **Scope** – Focused on Switch invoices only. Non-Switch layouts are explicitly skipped (`layout mismatch`). The pipeline expects OCR manifests (JSON) and produces structured fields plus itemized line items.
+- **Further reading** – See [`README_approach.md`](README_approach.md) for architecture/trade-offs and [`README_extractor.md`](README_extractor.md) for a deep dive into the parsing logic.
+
+## Processing Pipeline
+
+```
+documents.json
+   ↓
+veryfi-ocr
+   ↓
+Raw Veryfi OCR JSON (outputs-ocr/)
+   ↓
+veryfi-extract
+   ↓
+Structured invoice fields (outputs-extracted/)
+```
+
+## Quick Start
+
+```bash
+git clone https://github.com/omazapa/veryfi_test
+cd veryfi_test
+pip install -e .
+cp .env.example .env
+# edit .env with your Veryfi credentials
+# drop your Switch PDFs under ./data/ or adjust the manifest paths accordingly
+veryfi-ocr examples/documents.json
+veryfi-extract outputs-ocr/
+```
 
 ## Credentials Setup
 
