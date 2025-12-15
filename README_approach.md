@@ -49,7 +49,7 @@
 ## Trade-offs
 
 - **Real API integration vs. speed** – The pipeline tests hit Veryfi’s production API using the actual PDFs. Fidelity is excellent, but each run takes ~30 seconds and requires secrets/quota. We accept the slower feedback cycle to guarantee the CLI continues working with real data.
-- **Two-step CLI workflow** – Running `veryfi-ocr` and `veryfi-extract` separately keeps responsibilities isolated (API vs. parsing) yet requires handling intermediate directories such as `outputs-ocr/`. A single “all-in-one” command would be simpler but harder to debug/extend.
+- **Two-step CLI workflow** – Running `veryfi-ocr` and `veryfi-extract` separately keeps responsibilities isolated (API vs. parsing) yet requires handling intermediate directories such as `outputs-ocr/`. A single “all-in-one” command would be simpler but harder to debug/extend, and it would likely re-hit the Veryfi API every time you want to re-run extraction (even if OCR artifacts already existed).
 - **Regex-based extractor** – Crafting heuristics with regular expressions made implementation faster and easier to reason about, though it couples the code tightly to the current Switch layout. Supporting new templates means adjusting those regexes directly.
 - **Private fixture submodule** – Shipping PDFs through `tests/veryfi_private_data` keeps the main repo clean and avoids leaking documents, but it adds the extra step of cloning/initing the submodule before running tests.
 - **Heavy pre-commit hooks** – Enforcing autoflake, Black, and mypy on every commit guarantees consistent style/type safety but can feel slower or require cache tweaks in restricted environments.
