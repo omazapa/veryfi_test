@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Sequence
 
-from veryfi import Client
+from veryfi import Client  # type: ignore[import-untyped]
 
 from .config import VeryfiCredentials, load_credentials
 

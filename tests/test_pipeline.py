@@ -3,11 +3,19 @@ import os
 from pathlib import Path
 
 import pytest
+from typing import Dict, List, TypedDict
 
 from veryfi_test import extract_cli, ocr_cli
 
 
 PDF_FIXTURES = Path(__file__).resolve().parent / "veryfi_private_data"
+
+
+class DatasetSpec(TypedDict):
+    stem: str
+    key: str
+    meta: Dict[str, object]
+    is_switch: bool
 
 REQUIRED_ENV_VARS = [
     "VERYFI_API_URL",
@@ -24,7 +32,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-DATASET_SPECS = [
+DATASET_SPECS: List[DatasetSpec] = [
     {
         "stem": "synth-switch_v5-14",
         "key": "path",

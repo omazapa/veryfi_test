@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import List, Sequence
+from typing import Dict, List, Sequence, TypedDict
 
 from .extractor import extract_switch_invoice
 
@@ -126,7 +126,13 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def run_extraction(input_dir: Path, output_dir: Path) -> dict:
+class ExtractionSummary(TypedDict):
+    processed: int
+    saved: List[str]
+    skipped: Dict[str, str]
+
+
+def run_extraction(input_dir: Path, output_dir: Path) -> ExtractionSummary:
     """Extract all supported documents inside ``input_dir``.
 
     Parameters
@@ -143,7 +149,7 @@ def run_extraction(input_dir: Path, output_dir: Path) -> dict:
     """
 
     files = _iter_json_files(input_dir)
-    summary = {"processed": len(files), "saved": [], "skipped": {}}
+    summary: ExtractionSummary = {"processed": len(files), "saved": [], "skipped": {}}
 
     for source in files:
         success, reason = _process_file(source, output_dir)
