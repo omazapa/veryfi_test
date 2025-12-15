@@ -70,6 +70,8 @@ class InvoiceLineItem:
     tax_rate: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Optional[str]]:
+        """Return a JSON-serializable representation of the line item."""
+
         return asdict(self)
 
 
@@ -151,6 +153,19 @@ def extract_switch_invoice(ocr_text: str) -> Optional[InvoiceFields]:
 
 
 def _parse_line_items(text: str) -> List[InvoiceLineItem]:
+    """Parse the line-item table from the OCR text stream.
+
+    Parameters
+    ----------
+    text : str
+        Full OCR output that contains the invoice table with headers.
+
+    Returns
+    -------
+    list of InvoiceLineItem
+        Structured representation for each parsed row.
+    """
+
     items: List[InvoiceLineItem] = []
     capture = False
     buffer: List[str] = []
@@ -206,6 +221,19 @@ def _parse_line_items(text: str) -> List[InvoiceLineItem]:
 
 
 def _derive_sku(description: str) -> Optional[str]:
+    """Infer the SKU identifier from a line-item description.
+
+    Parameters
+    ----------
+    description : str
+        Full description extracted from the table row.
+
+    Returns
+    -------
+    str or None
+        Eight-character token (or prefix before a ``|``) when present, otherwise ``None``.
+    """
+
     if not description:
         return None
 
@@ -213,14 +241,12 @@ def _derive_sku(description: str) -> Optional[str]:
     if matches:
         return matches[-1].strip().upper()
 
-    if "|" in description:
-        prefix = description.split("|", 1)[0].strip()
-        return prefix or None
-
     return None
 
 
 def _standardize_number(value: str) -> str:
+    """Normalize numeric strings by trimming whitespace and commas."""
+
     return value.replace(",", "").strip()
 
 
