@@ -1,0 +1,3 @@
+[submodule "tests/veryfi_private_data"]
+	path = tests/veryfi_private_data
+	url = git@github.com:omazapa/veryfi_private_data.git
