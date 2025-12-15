@@ -1,0 +1,29 @@
+name: Integration Tests
+
+on:
+  pull_request:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pytest pytest-cov
+      - name: Run verbose pipeline tests
+        env:
+          VERYFI_API_URL: ${{ secrets.VERYFI_API_URL }}
+          VERYFI_CLIENT_ID: ${{ secrets.VERYFI_CLIENT_ID }}
+          VERYFI_CLIENT_SECRET: ${{ secrets.VERYFI_CLIENT_SECRET }}
+          VERYFI_USERNAME: ${{ secrets.VERYFI_USERNAME }}
+          VERYFI_API_KEY: ${{ secrets.VERYFI_API_KEY }}
+        run: |
+          pytest -vv -s tests/test_pipeline.py
