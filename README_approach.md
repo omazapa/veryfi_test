@@ -6,6 +6,7 @@
 - **Functional/OO hybrid** – Data structures (`InvoiceFields`, `InvoiceLineItem`) are dataclasses for clarity, while most behavior is implemented with pure helper functions. This keeps parsing logic stateless and easy to test.
 - **Static typing** – The codebase targets Python 3.11 with type hints across modules (`TypedDict` summaries, dataset specs). CI runs `mypy` to catch regressions early.
 - **CLIs over frameworks** – Instead of a web API, we expose narrow console entry points (`veryfi-ocr`, `veryfi-extract`). This keeps the paradigm simple and focused on batch processing.
+- **SOLID-inspired** – While not a full Clean Architecture, the modules respect Single Responsibility (each CLI focuses on one concern), Open/Closed (extractor heuristics can grow without touching the rest), and Dependency Inversion (CLIs depend on pure helpers/dataclasses rather than hard-wired implementations).
 
 ## Approach Highlights
 
