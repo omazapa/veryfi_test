@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <strong>Veryfi’s Data Annotations Engineer Test</strong>
+  <strong>Veryfi’s Data Engineer (Annotations) Test</strong>
 </p>
 
 ## Contents
