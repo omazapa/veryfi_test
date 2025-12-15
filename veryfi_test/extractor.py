@@ -241,10 +241,6 @@ def _derive_sku(description: str) -> Optional[str]:
     if matches:
         return matches[-1].strip().upper()
 
-    if "|" in description:
-        prefix = description.split("|", 1)[0].strip()
-        return prefix or None
-
     return None
 
 
