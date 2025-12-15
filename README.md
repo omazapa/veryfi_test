@@ -4,13 +4,13 @@ CLI helpers that upload Switch-branded invoices to Veryfi, persist the OCR paylo
 
 <p align="center">
   <a href="https://github.com/omazapa/veryfi_test/actions/workflows/quality.yml">
-    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/quality.yml/badge.svg?branch=production" alt="Code Quality badge" />
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/quality.yml/badge.svg" alt="Code Quality badge" />
   </a>
   <a href="https://github.com/omazapa/veryfi_test/actions/workflows/integration.yml">
-    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/integration.yml/badge.svg?branch=production" alt="Integration Tests badge" />
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/integration.yml/badge.svg" alt="Integration Tests badge" />
   </a>
   <a href="https://github.com/omazapa/veryfi_test/actions/workflows/python-publish.yml">
-    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/python-publish.yml/badge.svg?branch=production" alt="Publish badge" />
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/python-publish.yml/badge.svg" alt="Publish badge" />
   </a>
 </p>
 
