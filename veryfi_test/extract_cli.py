@@ -162,6 +162,8 @@ def run_extraction(input_dir: Path, output_dir: Path) -> ExtractionSummary:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """Console-script entry point for the directory extractor."""
+
     args = parse_args(argv)
     output_dir = args.output_dir.expanduser()
     summary = run_extraction(args.input_dir.expanduser(), output_dir)

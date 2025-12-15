@@ -4,6 +4,7 @@ repos:
     hooks:
       - id: autoflake
         args:
+          - --jobs=1
           - --remove-all-unused-imports
           - --remove-unused-variables
           - --expand-star-imports
