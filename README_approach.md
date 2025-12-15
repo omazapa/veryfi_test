@@ -19,7 +19,7 @@
 
 - The OCR responses use Veryfi’s default schema (`veryfi_response.ocr_text`). If Veryfi changes field names, the extractor would need updating.
 - Switch invoices always contain the recognizable header, `Invoice Date / Invoice No.` row, and tabular layout described in the README.
-- SKUs appear either as eight-character alphanumeric tokens inside parentheses or as text before a `|`. Otherwise, `sku` is `null`.
+- SKUs appear either as eight-character alphanumeric tokens inside parentheses. Otherwise, `sku` is `null`.
 - The provided Veryfi credentials have sufficient quota and permissions to process the fixture PDFs whenever CI runs.
 
 ## Coding Best Practices
