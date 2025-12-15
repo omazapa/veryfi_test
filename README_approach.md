@@ -53,3 +53,4 @@
 - **Regex-based extractor** – Crafting heuristics with regular expressions made implementation faster and easier to reason about, though it couples the code tightly to the current Switch layout. Supporting new templates means adjusting those regexes directly.
 - **Private fixture submodule** – Shipping PDFs through `tests/veryfi_private_data` keeps the main repo clean and avoids leaking documents, but it adds the extra step of cloning/initing the submodule before running tests.
 - **Heavy pre-commit hooks** – Enforcing autoflake, Black, and mypy on every commit guarantees consistent style/type safety but can feel slower or require cache tweaks in restricted environments.
+- **PR-only integration tests** – The pipeline suite runs only on pull requests to minimize Veryfi API calls and quota consumption. This safeguards API limits, but individual feature branches don’t get automated integration feedback until they open a PR.
