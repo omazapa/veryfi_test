@@ -1,5 +1,19 @@
 # veryfi_test
 
+CLI helpers that upload Switch-branded invoices to Veryfi, persist the OCR payloads, and extract structured invoice data for downstream tooling.
+
+<p align="center">
+  <a href="https://github.com/omazapa/veryfi_test/actions/workflows/quality.yml">
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/quality.yml/badge.svg?branch=master" alt="Code Quality badge" />
+  </a>
+  <a href="https://github.com/omazapa/veryfi_test/actions/workflows/integration.yml">
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/integration.yml/badge.svg?branch=master" alt="Integration Tests badge" />
+  </a>
+  <a href="https://github.com/omazapa/veryfi_test/actions/workflows/python-publish.yml">
+    <img src="https://github.com/omazapa/veryfi_test/actions/workflows/python-publish.yml/badge.svg?branch=master" alt="Publish badge" />
+  </a>
+</p>
+
 <p align="center">
   <img src="https://avatars.githubusercontent.com/u/64030334?s=200&v=4" alt="Veryfi Logo" />
 </p>
