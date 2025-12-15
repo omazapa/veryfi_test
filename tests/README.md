@@ -45,6 +45,11 @@ The test spins up the manifest, uploads every PDF to Veryfi, validates the OCR
 JSON, runs the extractor, validates the extracted JSON, and finally emits a
 pipeline report so you can inspect the summary in the logs.
 
+> **GitHub Actions** – Because the fixtures live in a private submodule, CI needs
+> a personal access token with read access to `omazapa/veryfi_private_data`. Add
+> it to the repository secrets as `VERYFI_PRIVATE_DATA_PAT` so the
+> `integration.yml` workflow can clone the submodule automatically.
+
 ## Installing pre-commit hooks
 
 This repository uses `pre-commit` to keep formatting and typing consistent.
